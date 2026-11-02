@@ -1,0 +1,10 @@
+{
+  "name": "assessment-studio-netlify",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Assessment Studio on Netlify Functions and Gemini",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

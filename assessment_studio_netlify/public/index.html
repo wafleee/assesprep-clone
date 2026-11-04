@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assessment Studio</title>
+<meta name="description" content="Generate IB MYP practice assessments and take them in a clean exam environment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjs@13.2.3/lib/browser/math.js"></script>
+<style>
+:root{
+  --bg:#f5f6fb;--surface:#fff;--ink:#0f172a;--ink-2:#334155;--muted:#64748b;--faint:#94a3b8;--line:#e6e8f0;--line-2:#d5d9e4;
+  --primary:#4f46e5;--primary-600:#4338ca;--primary-50:#eef2ff;--primary-100:#e0e7ff;
+  --green:#059669;--green-50:#ecfdf5;--amber:#b45309;--amber-50:#fffbeb;--red:#dc2626;--red-50:#fef2f2;
+  --radius:14px;--shadow-sm:0 1px 2px rgba(15,23,42,.05);--shadow:0 1px 3px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06);--shadow-lg:0 20px 60px rgba(15,23,42,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+svg{flex:none}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);font-weight:600;font-size:14px;color:var(--ink-2);transition:background .15s,border-color .15s,box-shadow .15s,transform .05s;white-space:nowrap}
+.btn:hover{background:#f8fafc;border-color:#c7cdda}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(79,70,229,.3),inset 0 1px 0 rgba(255,255,255,.12)}
+.btn.primary:hover{background:var(--primary-600);border-color:var(--primary-600)}
+.btn.soft{background:var(--primary-50);border-color:var(--primary-100);color:var(--primary-600)}
+.btn.soft:hover{background:var(--primary-100)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:#eef0f6}
+.btn.lg{height:48px;padding:0 22px;font-size:15px;border-radius:12px}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:9px}
+.btn.icon{width:40px;padding:0}
+.btn.block{width:100%}
+
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:30;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 24px;background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:16px}
+.brand-mark{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;background:linear-gradient(135deg,#6366f1,#4338ca);box-shadow:0 4px 12px rgba(79,70,229,.3)}
+
+/* Home */
+.home{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+.hero{max-width:720px;margin-bottom:28px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--primary)}
+.hero h1{font-size:clamp(28px,4vw,40px);line-height:1.1;letter-spacing:-.03em;margin:12px 0 12px;font-weight:800}
+.hero p{color:var(--muted);font-size:16px;margin:0}
+.home-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.builder{padding:8px 28px}
+.section{padding:24px 0;border-bottom:1px solid var(--line)}
+.section:last-child{border-bottom:0}
+.section-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;margin:0 0 4px}
+.step{width:24px;height:24px;border-radius:999px;background:var(--primary-50);color:var(--primary);display:grid;place-items:center;font-size:12px;font-weight:800}
+.section-help{color:var(--muted);font-size:13px;margin:0 0 14px 34px}
+.field-label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin:0 0 8px}
+.textarea,.input,.select{width:100%;border:1px solid var(--line-2);border-radius:11px;background:#fff;padding:12px 14px;outline:none;transition:border-color .15s,box-shadow .15s}
+.textarea{min-height:110px;resize:vertical;line-height:1.55}
+.textarea:focus,.input:focus,.select:focus{border-color:#a5b4fc;box-shadow:0 0 0 4px rgba(99,102,241,.12)}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line-2);background:#fff;font-weight:600;font-size:14px;color:var(--ink-2);transition:all .15s}
+.chip:hover{border-color:#a5b4fc;background:#fafaff}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.25)}
+.crit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.crit{text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line-2);background:#fff;transition:all .15s;min-height:112px;display:flex;flex-direction:column;gap:6px}
+.crit:hover{border-color:#a5b4fc}
+.crit.active{border-color:var(--primary);background:var(--primary-50);box-shadow:0 0 0 1px var(--primary) inset}
+.crit .letter{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px;background:#f1f5f9;color:var(--ink-2)}
+.crit.active .letter{background:var(--primary);color:#fff}
+.crit strong{font-size:14px;line-height:1.3}
+.crit span.desc{font-size:12px;color:var(--muted);line-height:1.4}
+.opts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px}
+.seg{display:flex;padding:4px;gap:4px;background:#f1f3f8;border-radius:11px;border:1px solid var(--line)}
+.seg button{flex:1;height:34px;border:0;border-radius:8px;background:transparent;font-weight:600;font-size:13px;color:var(--muted);transition:all .15s;padding:0 6px}
+.seg button:hover{color:var(--ink)}
+.seg button.active{background:#fff;color:var(--primary-600);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+.attach-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.doc-chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 6px 0 10px;border-radius:8px;background:#f1f5f9;font-size:13px;color:var(--ink-2);max-width:100%}
+.doc-chip .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.doc-chip .meta{color:var(--muted);font-size:12px}
+.doc-chip.error{background:var(--red-50);color:var(--red)}
+.doc-chip button{border:0;background:transparent;width:22px;height:22px;border-radius:6px;color:var(--muted);display:grid;place-items:center}
+.doc-chip button:hover{background:#e2e8f0;color:var(--ink)}
+.summary{position:sticky;top:88px;padding:22px}
+.summary h3{margin:0 0 4px;font-size:16px}
+.summary .sub{margin:0 0 16px;color:var(--muted);font-size:13px}
+.sum-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.sum-row span:first-child{color:var(--muted)}
+.sum-row span:last-child{font-weight:600;text-align:right}
+.summary .btn.lg{margin-top:18px}
+.form-error{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--red-50);color:var(--red);font-size:13px}
+.summary .note{margin-top:12px;color:var(--faint);font-size:12px;text-align:center}
+.banner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 18px;margin-bottom:24px;border-radius:var(--radius);background:linear-gradient(90deg,var(--primary-50),#f5f3ff);border:1px solid var(--primary-100)}
+.banner strong{display:block}
+.banner span{color:var(--muted);font-size:13px}
+.banner .actions{display:flex;gap:8px}
+.footer{margin-top:48px;text-align:center;color:var(--faint);font-size:12px}
+
+/* Generating overlay */
+.overlay{position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px}
+.gen-card{width:min(420px,100%);background:#fff;border-radius:18px;box-shadow:var(--shadow-lg);padding:32px;text-align:center}
+.spinner{width:52px;height:52px;margin:0 auto 18px;border-radius:50%;border:4px solid var(--primary-100);border-top-color:var(--primary);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-card h3{margin:0 0 6px;font-size:18px}
+.gen-card p{margin:0;color:var(--muted);font-size:14px}
+.gen-card .elapsed{margin-top:14px;font-variant-numeric:tabular-nums;color:var(--faint);font-size:13px}
+.gen-card .actions{display:flex;gap:8px;justify-content:center;margin-top:20px}
+.gen-card.error .spinner{display:none}
+.gen-card .err-icon{width:52px;height:52px;margin:0 auto 18px;border-radius:50%;background:var(--red-50);color:var(--red);display:grid;place-items:center}
+.gen-card .err-detail{margin-top:10px;font-size:12px;color:var(--muted);word-break:break-word;max-height:120px;overflow:auto;text-align:left;background:#f8fafc;border-radius:8px;padding:8px 10px}
+
+/* Exam */
+.exam-header{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.exam-top{height:64px;display:flex;align-items:center;gap:16px;padding:0 20px}
+.exam-title{min-width:0;flex:1}
+.exam-title strong{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exam-title span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.timer{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:10px;background:#f1f5f9;font-weight:700;font-variant-numeric:tabular-nums;font-size:15px}
+.timer.warn{background:var(--amber-50);color:var(--amber)}
+.timer.danger{background:var(--red-50);color:var(--red);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+.exam-tools{display:flex;gap:8px}
+.qstrip-wrap{border-top:1px solid var(--line);background:#fafbfd}
+.qstrip{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:6px;overflow-x:auto;padding:10px 20px;scrollbar-width:thin}
+.qstrip button{flex:none;min-width:36px;height:36px;padding:0 8px;border-radius:9px;border:1px solid var(--line-2);background:#fff;font-weight:700;font-size:13px;color:var(--ink-2)}
+.qstrip button.answered{background:var(--primary-50);border-color:var(--primary-100);color:var(--primary-600)}
+.qstrip button.current{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-100);color:var(--primary-600)}
+.progress{height:3px;background:var(--line)}
+.progress div{height:100%;background:var(--primary);transition:width .3s}
+.exam-main{max-width:900px;margin:0 auto;padding:28px 20px 80px}
+.q-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.q-num{font-weight:800;font-size:13px;color:var(--ink-2)}
+.pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;background:#f1f5f9;color:var(--ink-2)}
+.pill.primary{background:var(--primary-50);color:var(--primary-600)}
+.pill.green{background:var(--green-50);color:var(--green)}
+.pill.amber{background:var(--amber-50);color:var(--amber)}
+.pill.red{background:var(--red-50);color:var(--red)}
+.q-card{padding:28px}
+.q-text{font-size:18px;line-height:1.7;white-space:pre-line;overflow-wrap:anywhere}
+.q-hint{margin-top:10px;color:var(--muted);font-size:13px}
+.options{display:grid;gap:10px;margin-top:22px}
+.opt{display:flex;align-items:flex-start;gap:14px;width:100%;text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--line-2);background:#fff;transition:all .12s;font-size:16px;line-height:1.55}
+.opt:hover{border-color:#a5b4fc;background:#fafaff}
+.opt .key{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px;background:#f1f5f9;color:var(--ink-2);transition:all .12s}
+.opt.selected{border-color:var(--primary);background:var(--primary-50);box-shadow:0 0 0 1px var(--primary) inset}
+.opt.selected .key{background:var(--primary);color:#fff}
+.opt .otext{padding-top:2px;overflow-wrap:anywhere}
+.editor{margin-top:22px;border:1px solid var(--line-2);border-radius:12px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.editor:focus-within{border-color:#a5b4fc;box-shadow:0 0 0 4px rgba(99,102,241,.12)}
+.toolbar{display:flex;flex-wrap:wrap;gap:2px;padding:6px;background:#f8fafc;border-bottom:1px solid var(--line)}
+.tool{height:32px;min-width:32px;padding:0 8px;border:0;border-radius:7px;background:transparent;color:var(--ink-2);font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.tool:hover{background:#e9edf5}
+.tool.wide{font-weight:600;font-size:13px}
+.tool-sep{width:1px;margin:6px 4px;background:var(--line-2)}
+.answerbox{min-height:240px;padding:16px;outline:none;line-height:1.7;font-size:16px;overflow-wrap:anywhere}
+.answerbox:empty:before{content:attr(data-placeholder);color:var(--faint)}
+.answer-math{display:inline-block;padding:1px 4px;margin:0 2px;border-radius:6px;background:var(--primary-50);cursor:pointer}
+.answerbox .answer-math:hover{background:var(--primary-100)}
+.editor-foot{display:flex;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);background:#fcfcfe}
+.q-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:20px}
+.saved{font-size:12px;color:var(--faint);display:inline-flex;align-items:center;gap:6px}
+
+/* Review */
+.review{max-width:960px;margin:0 auto;padding:36px 20px 72px}
+.result-hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;padding:28px}
+.ring{--pct:0;width:148px;height:148px;border-radius:50%;background:conic-gradient(var(--primary) calc(var(--pct)*1%),#eef0f6 0);display:grid;place-items:center;transition:background .4s}
+.ring-inner{width:118px;height:118px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
+.ring-inner strong{display:block;font-size:30px;letter-spacing:-.02em;line-height:1}
+.ring-inner span{font-size:12px;color:var(--muted)}
+.result-hero h1{margin:6px 0 6px;font-size:26px;letter-spacing:-.02em}
+.result-hero p{margin:0;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.stat{padding:12px 14px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.stat span{display:block;font-size:12px;color:var(--muted)}
+.stat strong{font-size:15px}
+.review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.notice{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-top:16px;padding:12px 16px;border-radius:12px;font-size:14px}
+.notice.info{background:var(--primary-50);color:var(--primary-600)}
+.notice.error{background:var(--red-50);color:var(--red)}
+.mini-spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;display:inline-block;vertical-align:-3px;margin-right:8px}
+.ritem{margin-top:14px;padding:22px 24px;border-left:4px solid var(--line-2)}
+.ritem.good{border-left-color:var(--green)}
+.ritem.part{border-left-color:#f59e0b}
+.ritem.bad{border-left-color:var(--red)}
+.ritem-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ritem-head .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.score-tag{font-weight:800;font-variant-numeric:tabular-nums}
+.ritem .q-text{font-size:16px;margin-top:12px}
+.label{margin-top:16px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+.answer-view{margin-top:6px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}
+.answer-view.empty{color:var(--faint);font-style:italic}
+.ropts{display:grid;gap:6px;margin-top:8px}
+.ropt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:10px;border:1px solid var(--line);font-size:14px}
+.ropt .key{flex:none;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:800;background:#f1f5f9}
+.ropt.correct{border-color:#a7f3d0;background:var(--green-50)}
+.ropt.correct .key{background:var(--green);color:#fff}
+.ropt.wrong{border-color:#fecaca;background:var(--red-50)}
+.ropt.wrong .key{background:var(--red);color:#fff}
+.ropt .tag{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+.feedback{margin-top:14px;padding:14px 16px;border-radius:12px;background:#fafaff;border:1px solid var(--primary-100);font-size:14px;line-height:1.6;white-space:pre-line}
+.feedback .improve{margin-top:8px;color:var(--ink-2)}
+.feedback.pending{color:var(--muted);background:#f8fafc;border-color:var(--line)}
+details.scheme{margin-top:12px}
+details.scheme summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--primary-600);list-style:none;display:inline-flex;align-items:center;gap:6px}
+details.scheme summary::-webkit-details-marker{display:none}
+details.scheme[open] summary svg{transform:rotate(90deg)}
+details.scheme .body{margin-top:8px;padding:12px 14px;border-radius:10px;background:#f8fafc;font-size:14px;white-space:pre-line;overflow-wrap:anywhere}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;z-index:70;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow-lg)}
+.modal.small{width:min(420px,100%)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font-size:17px}
+.modal-body{padding:20px 22px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid var(--line);background:#fcfcfe;position:sticky;bottom:0}
+math-field{display:block;width:100%;min-height:72px;padding:14px 16px;border:1px solid var(--line-2);border-radius:12px;font-size:24px;background:#fff;--caret-color:var(--primary);--selection-background-color:var(--primary-100);--contains-highlight-background-color:transparent}
+math-field:focus-within{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-100)}
+math-field::part(menu-toggle){display:none}
+.math-status{min-height:72px;display:grid;place-items:center;border:1px dashed var(--line-2);border-radius:12px;color:var(--muted);font-size:14px}
+.math-hint{margin:10px 0 0;color:var(--muted);font-size:13px}
+.math-hint kbd{font:600 12px ui-monospace,Consolas,monospace;padding:1px 6px;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;background:#f8fafc;color:var(--ink-2)}
+body{--keyboard-zindex:200}
+.tabs{display:flex;gap:4px;margin:18px 0 10px;overflow-x:auto}
+.tab{height:32px;padding:0 12px;border:0;border-radius:8px;background:transparent;font-weight:600;font-size:13px;color:var(--muted);white-space:nowrap}
+.tab.active{background:var(--primary-50);color:var(--primary-600)}
+.symbols{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px}
+.sym{height:44px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:14px}
+.sym:hover{border-color:#a5b4fc;background:#fafaff}
+
+/* Calculator */
+.calc{position:fixed;z-index:50;top:140px;right:24px;width:352px;background:#1e2235;border-radius:18px;box-shadow:var(--shadow-lg);color:#e2e8f0;user-select:none;outline:none}
+.calc:focus-visible{box-shadow:var(--shadow-lg),0 0 0 3px #818cf8}
+.calc-head{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 6px 16px;cursor:grab;touch-action:none}
+.calc-head:active{cursor:grabbing}
+.calc-head strong{font-size:13px;font-weight:600;color:#cbd5e1;display:flex;align-items:center;gap:8px}
+.calc-head button{width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#94a3b8;display:grid;place-items:center}
+.calc-head button:hover{background:#2d3350;color:#fff}
+.calc-screen{margin:0 12px;padding:12px 14px;border-radius:12px;background:#d9e3d3;color:#1a2416;min-height:84px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:inset 0 2px 6px rgba(0,0,0,.18)}
+.calc-status{display:flex;gap:10px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#4b5a44}
+.calc-expr{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:15px;min-height:22px;word-break:break-all;line-height:1.35}
+.calc-expr .caret{display:inline-block;width:2px;height:16px;background:#1a2416;vertical-align:-3px;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.calc-result{text-align:right;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:26px;font-weight:700;min-height:34px;line-height:1.3;overflow-x:auto;white-space:nowrap}
+.calc-result.err{font-size:16px;color:#9f1d1d}
+.calc-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px}
+.calc-keys button{height:38px;border:0;border-radius:9px;font-size:14px;font-weight:600;color:#e2e8f0;background:#2d3350;box-shadow:0 2px 0 rgba(0,0,0,.25);transition:background .1s,transform .05s}
+.calc-keys button:hover{background:#3a4166}
+.calc-keys button:active{transform:translateY(1px);box-shadow:none}
+.calc-keys button.fn{background:#262b44;color:#c7d2fe;font-size:13px}
+.calc-keys button.fn:hover{background:#323858}
+.calc-keys button.num{background:#f1f5f9;color:#0f172a;font-size:16px}
+.calc-keys button.num:hover{background:#fff}
+.calc-keys button.op{background:#3b4266;font-size:17px}
+.calc-keys button.del{background:#b45309;color:#fff}
+.calc-keys button.del:hover{background:#c2610c}
+.calc-keys button.eq{background:var(--primary);color:#fff;font-size:18px}
+.calc-keys button.eq:hover{background:#6366f1}
+
+@media (max-width:980px){
+  .home-grid{grid-template-columns:1fr}
+  .summary{position:static}
+  .crit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .topbar{padding:0 16px}
+  .home{padding:24px 16px 48px}
+  .builder{padding:4px 18px}
+  .section-help{margin-left:0}
+  .opts-grid{grid-template-columns:1fr}
+  .crit{min-height:0}
+  .crit span.desc{display:none}
+  .exam-top{padding:0 12px;gap:8px}
+  .exam-tools .label-text{display:none}
+  .exam-tools .btn{width:40px;padding:0}
+  .q-card{padding:20px}
+  .q-text{font-size:16px}
+  .result-hero{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .stats{grid-template-columns:1fr}
+  .review-actions{justify-content:center}
+  .calc{left:8px!important;right:8px!important;top:auto!important;bottom:8px;width:auto}
+  .calc-head{cursor:default}
+  .calc-screen{min-height:64px;padding:8px 12px}
+  .calc-keys{gap:5px;padding:10px}
+  .calc-keys button{height:31px}
+}
+</style>
+</head>
+<body>
+
+<!-- Home -->
+<div id="homeScreen">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">AS</div>Assessment Studio</div>
+  </header>
+  <main class="home">
+    <div id="resumeBanner" class="banner hidden">
+      <div><strong id="resumeTitle"></strong><span id="resumeMeta"></span></div>
+      <div class="actions"><button id="resumeDiscard" class="btn sm ghost">Dismiss</button><button id="resumeOpen" class="btn sm primary"></button></div>
+    </div>
+    <div class="hero">
+      <span class="eyebrow">IB MYP practice</span>
+      <h1>Build a practice test. Take it like the real exam.</h1>
+      <p>Choose a topic, subject and criterion. Questions are generated for you, then marked with feedback when you finish.</p>
+    </div>
+    <div class="home-grid">
+      <div class="card builder">
+        <section class="section">
+          <h2 class="section-title"><span class="step">1</span>What do you want to practise?</h2>
+          <p class="section-help">Be specific. The questions stay inside the topic you write here.</p>
+          <textarea id="prompt" class="textarea" placeholder="e.g. Solving quadratic equations by factorising and using the quadratic formula"></textarea>
+          <div class="attach-row">
+            <button type="button" id="attachBtn" class="btn sm"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Add notes or a worksheet</button>
+            <input id="docsInput" type="file" multiple accept=".pdf,.docx,.txt,.md,.csv,.json" class="hidden">
+            <div id="docsList" style="display:contents"></div>
+          </div>
+        </section>
+        <section class="section">
+          <h2 class="section-title"><span class="step">2</span>Subject</h2>
+          <p class="section-help">The criteria below update to match the subject.</p>
+          <div id="subjectChips" class="chips"></div>
+        </section>
+        <section class="section">
+          <h2 class="section-title"><span class="step">3</span>Criterion</h2>
+          <p class="section-help">The questions target this assessment criterion.</p>
+          <div id="criterionCards" class="crit-grid"></div>
+        </section>
+        <section class="section">
+          <h2 class="section-title"><span class="step">4</span>Test options</h2>
+          <p class="section-help">Grade sets the level of the questions. The timer starts when the test opens.</p>
+          <div class="field-label">Question type</div>
+          <div id="qtypeChips" class="chips" style="margin-bottom:20px"></div>
+          <div class="opts-grid">
+            <div><div class="field-label">Grade</div><div id="gradeSeg" class="seg"></div></div>
+            <div><div class="field-label">Difficulty</div><div id="difficultySeg" class="seg"></div></div>
+            <div><div class="field-label">Number of questions</div><div id="countSeg" class="seg"></div></div>
+            <div><label class="field-label" for="timeLimit">Time limit</label><select id="timeLimit" class="select"></select></div>
+            <div style="grid-column:1/-1"><label class="field-label" for="extra">Extra instructions <span style="color:var(--faint);font-weight:500">(optional)</span></label><input id="extra" class="input" placeholder="e.g. Use real-world contexts and ask for working"></div>
+          </div>
+        </section>
+      </div>
+      <aside class="card summary">
+        <h3>Your test</h3>
+        <p class="sub">Questions are written before the timer starts.</p>
+        <div class="sum-row"><span>Subject</span><span id="sumSubject"></span></div>
+        <div class="sum-row"><span>Criterion</span><span id="sumCriterion"></span></div>
+        <div class="sum-row"><span>Grade</span><span id="sumGrade"></span></div>
+        <div class="sum-row"><span>Questions</span><span id="sumQuestions"></span></div>
+        <div class="sum-row"><span>Difficulty</span><span id="sumDifficulty"></span></div>
+        <div class="sum-row"><span>Time</span><span id="sumTime"></span></div>
+        <div id="formError" class="form-error hidden"></div>
+        <button id="startBtn" class="btn primary lg block">Generate test<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <div class="note">Usually ready in 5 to 15 seconds</div>
+      </aside>
+    </div>
+    <div class="footer">Assessment Studio · AssessPrep-inspired assessment workflow<br>Made by Arham Jain</div>
+  </main>
+</div>
+
+<!-- Generating -->
+<div id="genOverlay" class="overlay hidden">
+  <div id="genCard" class="gen-card">
+    <div class="spinner"></div>
+    <div class="err-icon hidden" id="genErrIcon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="10"/></svg></div>
+    <h3 id="genTitle">Writing your questions</h3>
+    <p id="genText">Reading your topic…</p>
+    <div id="genDetail" class="err-detail hidden"></div>
+    <div id="genElapsed" class="elapsed"></div>
+    <div class="actions"><button id="genCancel" class="btn">Cancel</button><button id="genRetry" class="btn primary hidden">Try again</button></div>
+  </div>
+</div>
+
+<!-- Exam -->
+<div id="testScreen" class="hidden">
+  <header class="exam-header">
+    <div class="exam-top">
+      <div class="brand-mark">AS</div>
+      <div class="exam-title"><strong id="examTitle"></strong><span id="examMeta"></span></div>
+      <div id="timer" class="timer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg><span id="timerText">00:00</span></div>
+      <div class="exam-tools">
+        <button id="calcBtn" class="btn" title="Scientific calculator"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/></svg><span class="label-text">Calculator</span></button>
+        <button id="mathBtn" class="btn" title="Equation editor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 4H6l6 8-6 8h12"/></svg><span class="label-text">Equation</span></button>
+        <button id="submitBtn" class="btn primary" title="Submit test"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span class="label-text">Submit</span></button>
+      </div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="qstrip-wrap"><nav id="qStrip" class="qstrip" aria-label="Questions"></nav></div>
+  </header>
+  <main id="examMain" class="exam-main"></main>
+</div>
+
+<!-- Review -->
+<div id="reviewScreen" class="hidden">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">AS</div>Assessment Studio</div>
+    <button id="newTestTop" class="btn sm">New test</button>
+  </header>
+  <main class="review">
+    <div class="card result-hero">
+      <div id="ring" class="ring"><div class="ring-inner"><div><strong id="ringScore">–</strong><span id="ringSub">marks</span></div></div></div>
+      <div>
+        <span class="eyebrow" id="reviewEyebrow">Test submitted</span>
+        <h1 id="reviewHeadline">Your results</h1>
+        <p id="reviewSub"></p>
+        <div class="stats">
+          <div class="stat"><span>Answered</span><strong id="statAnswered"></strong></div>
+          <div class="stat"><span>Time used</span><strong id="statTime"></strong></div>
+          <div class="stat"><span>Criterion</span><strong id="statCriterion"></strong></div>
+        </div>
+        <div class="review-actions"><button id="newTestBtn" class="btn primary">New test</button><button id="retakeBtn" class="btn">Retake these questions</button></div>
+      </div>
+    </div>
+    <div id="reviewNotice"></div>
+    <div id="reviewItems"></div>
+  </main>
+</div>
+
+<!-- Submit confirm -->
+<div id="submitModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="submitTitle">
+  <div class="modal small">
+    <div class="modal-head"><h3 id="submitTitle">Submit your test?</h3></div>
+    <div class="modal-body"><p id="submitText" style="margin:0;color:var(--ink-2)"></p></div>
+    <div class="modal-foot"><button class="btn" data-close="submitModal">Keep working</button><button id="confirmSubmit" class="btn primary">Submit test</button></div>
+  </div>
+</div>
+
+<!-- Equation editor -->
+<div id="mathModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mathTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="mathTitle">Equation editor</h3><button class="btn icon ghost" data-close="mathModal" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="modal-body">
+      <div id="mathStatus" class="math-status">Loading the equation editor…</div>
+      <math-field id="mathField" class="hidden" math-virtual-keyboard-policy="auto"></math-field>
+      <p class="math-hint">Type as you would write it. <kbd>/</kbd> makes a fraction, <kbd>^</kbd> a power, <kbd>sqrt</kbd> a root and <kbd>pi</kbd> gives π. Use the arrow keys to move between boxes.</p>
+      <div id="symbolTabs" class="tabs"></div>
+      <div id="symbolGrid" class="symbols"></div>
+    </div>
+    <div class="modal-foot"><button class="btn" data-close="mathModal">Cancel</button><button id="insertMath" class="btn primary">Insert into answer</button></div>
+  </div>
+</div>
+
+<!-- Calculator -->
+<div id="calc" class="calc hidden" tabindex="0" aria-label="Scientific calculator">
+  <div class="calc-head" id="calcHead" title="Drag to move"><strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>Scientific calculator</strong><button id="calcClose" aria-label="Close calculator"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="calc-screen">
+    <div class="calc-status"><span id="calcAngleLabel">DEG</span><span id="calcAnsLabel"></span></div>
+    <div id="calcExpr" class="calc-expr"></div>
+    <div id="calcResult" class="calc-result">0</div>
+  </div>
+  <div id="calcKeys" class="calc-keys"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LETTERS = 'ABCDEFGH';
+const CHOICE_TYPES = ['MCQ', 'MCQ Multiple', 'True / False'];
+const STORAGE_KEY = 'assessment_studio_attempt_v2';
+
+const LANG_ACQ = { A: ['Listening', 'Understand spoken language and identify key information, ideas and perspectives.'], B: ['Reading', 'Understand written texts and interpret key information, ideas and perspectives.'], C: ['Speaking', 'Communicate ideas and information orally for an appropriate purpose and audience.'], D: ['Writing', 'Communicate ideas and information in writing using appropriate language and conventions.'] };
+const SUBJECTS = {
+  LNL: { label: 'Language & Literature', criteria: { A: ['Analysing', 'Analyse and interpret texts using evidence.'], B: ['Organizing', 'Organize ideas, arguments and evidence coherently.'], C: ['Producing text', 'Produce texts for clear purposes and audiences.'], D: ['Using language', 'Use language accurately, appropriately and with style.'] } },
+  HINDI: { label: 'Hindi', criteria: LANG_ACQ },
+  SPANISH: { label: 'Spanish', criteria: LANG_ACQ },
+  FRENCH: { label: 'French', criteria: LANG_ACQ },
+  MATHS: { label: 'Maths', criteria: { A: ['Knowing and understanding', 'Demonstrate knowledge and understanding of mathematical concepts and methods.'], B: ['Investigating patterns', 'Investigate patterns, describe relationships and justify generalizations.'], C: ['Communicating', 'Communicate mathematical ideas using appropriate notation, representations and terminology.'], D: ['Applying mathematics', 'Apply mathematics to solve problems in familiar and unfamiliar real-world contexts.'] } },
+  PHYSICS: { label: 'Physics', criteria: { A: ['Knowing and understanding', 'Demonstrate knowledge and understanding of scientific concepts and principles.'], B: ['Inquiring and designing', 'Use scientific inquiry to identify questions, plan investigations and collect data.'], C: ['Processing and evaluating', 'Process and interpret data, evaluate evidence and draw justified conclusions.'], D: ['Reflecting on impacts', 'Reflect on the implications of science and its applications.'] } },
+  CHEMISTRY: { label: 'Chemistry', criteria: { A: ['Knowing and understanding', 'Demonstrate knowledge and understanding of chemistry concepts and models.'], B: ['Inquiring and designing', 'Plan and conduct investigations using appropriate chemical methods.'], C: ['Processing and evaluating', 'Process data, interpret evidence and evaluate scientific claims.'], D: ['Reflecting on impacts', 'Reflect on applications of chemistry and their impacts.'] } },
+  BIOLOGY: { label: 'Biology', criteria: { A: ['Knowing and understanding', 'Demonstrate knowledge and understanding of biological concepts and systems.'], B: ['Inquiring and designing', 'Plan and conduct investigations and formulate testable questions.'], C: ['Processing and evaluating', 'Process data, evaluate evidence and draw evidence-based conclusions.'], D: ['Reflecting on impacts', 'Reflect on biological applications and their implications.'] } },
+  DESIGN: { label: 'Design', criteria: { A: ['Inquiring and analysing', 'Explain and justify the need for a solution and identify relevant research.'], B: ['Developing ideas', 'Develop detailed design specifications and develop feasible ideas.'], C: ['Creating the solution', 'Construct a logical plan and create a solution that addresses the design specification.'], D: ['Evaluating', 'Evaluate the solution and explain how it could be improved.'] } },
+};
+const QTYPES = [['Mixed', 'Mixed'], ['Long answer', 'Long answer'], ['MCQ', 'Multiple choice'], ['MCQ Multiple', 'Multiple select'], ['True / False', 'True / False'], ['Fill in the blanks', 'Fill in the blanks'], ['Question with sub-parts', 'Sub-part questions']];
+const TYPE_LABEL = Object.fromEntries(QTYPES);
+const GRADES = ['9', '10', '11', '12'];
+const DIFFICULTIES = ['Mixed', 'Easy', 'Medium', 'Hard', 'Exam-style'];
+const COUNTS = ['3', '5', '7', '10', '15'];
+const TIMES = [[0, 'No time limit'], [5, '5 minutes'], [10, '10 minutes'], [15, '15 minutes'], [30, '30 minutes'], [45, '45 minutes'], [60, '60 minutes'], [90, '90 minutes'], [120, '120 minutes']];
+
+const form = { subject: 'MATHS', criterion: 'A', qtype: 'Mixed', grade: '9', difficulty: 'Mixed', count: '5' };
+let docs = [];
+let attempt = null;
+let timerId = null;
+
+function renderMath(el) {
+  // Gemini writes money as \$5, which auto-render would otherwise read as a math delimiter.
+  const DOLLAR = '\uE000';
+  const textNodes = () => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), out = []; while (w.nextNode()) out.push(w.currentNode); return out; };
+  const outsideMath = () => textNodes().filter(n => !n.parentElement.closest('.katex'));
+  for (const n of textNodes()) if (n.nodeValue.includes('\\$')) n.nodeValue = n.nodeValue.replaceAll('\\$', DOLLAR);
+  if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\[', right: '\\]', display: true }, { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false }], preProcess: m => fixTex(m.replaceAll(DOLLAR, '\\$')), throwOnError: false });
+  for (const n of outsideMath()) n.nodeValue = n.nodeValue.replace(/\\n(?!eq|abla|ot|u\b|eg|ewline)/g, '\n');
+  if (window.katex) for (const n of outsideMath()) renderBareTex(n);
+  for (const n of outsideMath()) n.nodeValue = n.nodeValue
+    .replaceAll(DOLLAR, '$').replace(/\\([%&#_])/g, '$1')
+    .replace(/([.?!:\]]|marks?\))[ \t]+(\((?:[a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)[ \t])/g, '$1\n$2');
+}
+// KaTeX rejects a superscript straight after a space command, e.g. 20\,^{\circ}, which LaTeX allows.
+const fixTex = tex => tex.replace(/(\\(?:[,;:! ]|q?quad))(\s*[\^_])/g, '$1{}$2');
+// For LaTeX the model wrote without $...$, e.g. 20\,^{\circ}\text{C}. Words KaTeX can't parse stay as text.
+function renderBareTex(node) {
+  const s = node.nodeValue;
+  let frag = null, last = 0;
+  for (const m of s.matchAll(/[^\s$]*\\(?:[a-zA-Z]+|[,;!])[^\s$]*/g)) {
+    const tex = m[0].replace(/[.,;:!?]+$/, '');
+    let html;
+    try { html = katex.renderToString(fixTex(tex), { throwOnError: true }); } catch { continue; }
+    frag ??= document.createDocumentFragment();
+    const span = document.createElement('span');
+    span.innerHTML = html;
+    frag.append(s.slice(last, m.index), span);
+    last = m.index + tex.length;
+  }
+  if (frag) { frag.append(s.slice(last)); node.replaceWith(frag); }
+}
+function show(screen) {
+  for (const id of ['homeScreen', 'testScreen', 'reviewScreen']) $(id).classList.toggle('hidden', id !== screen);
+  if (screen !== 'testScreen') closeCalc();
+  window.scrollTo(0, 0);
+}
+function openModal(id) { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); window.mathVirtualKeyboard?.hide(); }
+document.addEventListener('click', e => {
+  const closer = e.target.closest('[data-close]');
+  if (closer) closeModal(closer.dataset.close);
+  else if (e.target.classList.contains('modal-backdrop')) closeModal(e.target.id);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => closeModal(m.id));
+});
+function fmtDuration(ms) {
+  const s = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+/* ---------- Home form ---------- */
+function renderChoiceGroup(el, items, key, cls) {
+  el.innerHTML = items.map(([value, label]) => `<button type="button" class="${cls}${form[key] === value ? ' active' : ''}" data-value="${esc(value)}">${esc(label)}</button>`).join('');
+  el.onclick = e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    form[key] = b.dataset.value;
+    renderForm();
+  };
+}
+function renderForm() {
+  renderChoiceGroup($('subjectChips'), Object.entries(SUBJECTS).map(([k, v]) => [k, v.label]), 'subject', 'chip');
+  renderChoiceGroup($('qtypeChips'), QTYPES, 'qtype', 'chip');
+  renderChoiceGroup($('gradeSeg'), GRADES.map(g => [g, g]), 'grade', '');
+  renderChoiceGroup($('difficultySeg'), DIFFICULTIES.map(d => [d, d === 'Exam-style' ? 'Exam' : d]), 'difficulty', '');
+  renderChoiceGroup($('countSeg'), COUNTS.map(c => [c, c]), 'count', '');
+  const criteria = SUBJECTS[form.subject].criteria;
+  $('criterionCards').innerHTML = Object.entries(criteria).map(([k, [name, desc]]) =>
+    `<button type="button" class="crit${form.criterion === k ? ' active' : ''}" data-value="${k}"><span class="letter">${k}</span><strong>${esc(name)}</strong><span class="desc">${esc(desc)}</span></button>`).join('');
+  $('criterionCards').onclick = e => { const b = e.target.closest('button'); if (b) { form.criterion = b.dataset.value; renderForm(); } };
+  $('sumSubject').textContent = SUBJECTS[form.subject].label;
+  $('sumCriterion').textContent = `${form.criterion} · ${criteria[form.criterion][0]}`;
+  $('sumGrade').textContent = `Grade ${form.grade}`;
+  $('sumQuestions').textContent = `${form.count} · ${TYPE_LABEL[form.qtype]}`;
+  $('sumDifficulty').textContent = form.difficulty;
+  const t = +$('timeLimit').value;
+  $('sumTime').textContent = t ? `${t} min` : 'No limit';
+}
+$('timeLimit').innerHTML = TIMES.map(([v, l]) => `<option value="${v}"${v === 45 ? ' selected' : ''}>${l}</option>`).join('');
+$('timeLimit').onchange = renderForm;
+renderForm();
+
+/* ---------- Documents ---------- */
+let pdfjsPromise = null;
+function loadPdfJs() {
+  pdfjsPromise ||= import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs').then(lib => {
+    lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.mjs';
+    return lib;
+  });
+  return pdfjsPromise;
+}
+let mammothPromise = null;
+function loadMammoth() {
+  mammothPromise ||= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js';
+    s.onload = () => resolve(window.mammoth);
+    s.onerror = () => reject(new Error('could not load the Word reader'));
+    document.head.appendChild(s);
+  });
+  return mammothPromise;
+}
+async function extractText(file) {
+  const name = file.name.toLowerCase();
+  if (/\.(txt|md|csv|json)$/.test(name)) return file.text();
+  if (name.endsWith('.docx')) return (await (await loadMammoth()).extractRawText({ arrayBuffer: await file.arrayBuffer() })).value;
+  if (name.endsWith('.pdf')) {
+    const pdf = await (await loadPdfJs()).getDocument({ data: await file.arrayBuffer() }).promise;
+    let text = '';
+    for (let p = 1; p <= pdf.numPages; p++) text += (await (await pdf.getPage(p)).getTextContent()).items.map(x => x.str).join(' ') + '\n';
+    return text;
+  }
+  throw new Error('unsupported file type');
+}
+function renderDocs() {
+  $('docsList').innerHTML = docs.map((d, i) => `<span class="doc-chip${d.status === 'error' ? ' error' : ''}" title="${esc(d.error || '')}"><span class="name">${esc(d.name)}</span><span class="meta">${d.status === 'reading' ? 'reading…' : d.status === 'error' ? 'failed' : Math.max(1, Math.round(d.text.length / 1000)) + 'k chars'}</span><button type="button" data-i="${i}" aria-label="Remove">✕</button></span>`).join('');
+}
+$('docsList').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) { docs.splice(+b.dataset.i, 1); renderDocs(); } };
+$('attachBtn').onclick = () => $('docsInput').click();
+$('docsInput').onchange = async e => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  await Promise.all(files.map(async f => {
+    const d = { name: f.name, text: '', status: 'reading' };
+    docs.push(d); renderDocs();
+    try { d.text = await extractText(f); d.status = 'ready'; }
+    catch (err) { d.status = 'error'; d.error = err.message; }
+    renderDocs();
+  }));
+};
+
+/* ---------- Generation ---------- */
+let genController = null;
+let genTimer = null;
+function buildConfig() {
+  const s = SUBJECTS[form.subject];
+  const [criterionName, criterionDescription] = s.criteria[form.criterion];
+  return {
+    subject: form.subject, subjectName: s.label, grade: +form.grade, criterion: form.criterion, criterionName, criterionDescription,
+    prompt: $('prompt').value.trim(), qtype: form.qtype, difficulty: form.difficulty, count: +form.count,
+    timeLimit: +$('timeLimit').value, extra: $('extra').value.trim(),
+    documents: docs.filter(d => d.status === 'ready').map(d => ({ name: d.name, text: d.text.slice(0, 40000) })),
+  };
+}
+async function postJson(url, body, signal) {
+  const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); }
+  catch { throw new Error(res.status === 504 || res.status === 502 ? 'The server took too long to answer. Try again, or ask for fewer questions.' : `The server sent an unexpected response (HTTP ${res.status}).`); }
+  if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status}).`);
+  return data;
+}
+function setGenState(state, message, detail) {
+  const card = $('genCard');
+  card.classList.toggle('error', state === 'error');
+  $('genErrIcon').classList.toggle('hidden', state !== 'error');
+  $('genRetry').classList.toggle('hidden', state !== 'error');
+  $('genCancel').textContent = state === 'error' ? 'Close' : 'Cancel';
+  $('genTitle').textContent = state === 'error' ? 'Could not create the test' : 'Writing your questions';
+  $('genText').textContent = message;
+  $('genDetail').classList.toggle('hidden', !detail);
+  $('genDetail').textContent = detail || '';
+  if (state === 'error') { clearInterval(genTimer); $('genElapsed').textContent = ''; }
+}
+async function generate() {
+  const config = buildConfig();
+  const err = $('formError');
+  if (!config.prompt && !config.documents.length) {
+    err.textContent = 'Write a topic in step 1, or add a document to build the questions from.';
+    err.classList.remove('hidden');
+    $('prompt').focus();
+    return;
+  }
+  err.classList.add('hidden');
+  $('genOverlay').classList.remove('hidden');
+  setGenState('loading', 'Reading your topic…');
+  const steps = ['Reading your topic…', `Writing ${config.count} ${config.subjectName} questions…`, 'Writing mark schemes…', 'Checking the questions…', 'Almost there…'];
+  const started = Date.now();
+  clearInterval(genTimer);
+  genTimer = setInterval(() => {
+    const s = (Date.now() - started) / 1000;
+    $('genText').textContent = steps[Math.min(steps.length - 1, Math.floor(s / 4))];
+    $('genElapsed').textContent = `${Math.floor(s)} s`;
+  }, 500);
+  genController = new AbortController();
+  try {
+    const data = await postJson('/api/generate', config, genController.signal);
+    clearInterval(genTimer);
+    $('genOverlay').classList.add('hidden');
+    startAttempt(config, data.questions);
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+    const [msg, detail] = splitDetail(e.message);
+    setGenState('error', msg, detail);
+  }
+}
+function splitDetail(message) {
+  const m = /^(.*?)\s*\((.*)\)$/s.exec(message);
+  return m ? [m[1], m[2]] : [message, ''];
+}
+$('startBtn').onclick = generate;
+$('genRetry').onclick = generate;
+$('genCancel').onclick = () => { genController?.abort(); clearInterval(genTimer); $('genOverlay').classList.add('hidden'); };
+
+/* ---------- Attempt state ---------- */
+function save() { if (attempt) localStorage.setItem(STORAGE_KEY, JSON.stringify(attempt)); }
+function startAttempt(config, questions) {
+  const now = Date.now();
+  attempt = {
+    phase: 'test', config, questions,
+    answers: questions.map(() => ({ choices: [], html: '' })),
+    index: 0, startedAt: now, endsAt: config.timeLimit ? now + config.timeLimit * 60000 : null,
+    submittedAt: null, reason: null, marks: {}, aiStatus: 'idle', aiError: '',
+  };
+  save();
+  openTest();
+}
+function answerText(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html || '';
+  d.querySelectorAll('.answer-math').forEach(s => s.replaceWith(` $${s.dataset.latex}$ `));
+  d.querySelectorAll('sup').forEach(s => s.replaceWith(`^(${s.textContent})`));
+  d.querySelectorAll('sub').forEach(s => s.replaceWith(`_(${s.textContent})`));
+  d.querySelectorAll('br').forEach(b => b.replaceWith('\n'));
+  d.querySelectorAll('li').forEach(li => li.prepend('\n• '));
+  d.querySelectorAll('div,p').forEach(el => el.prepend('\n'));
+  return d.textContent.replace(/\u00a0/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+}
+function isAnswered(i) {
+  const q = attempt.questions[i], a = attempt.answers[i];
+  return CHOICE_TYPES.includes(q.type) ? a.choices.length > 0 : answerText(a.html).length > 0;
+}
+
+/* ---------- Exam ---------- */
+function openTest() {
+  const c = attempt.config;
+  $('examTitle').textContent = `${c.subjectName} · ${c.prompt || 'Practice test'}`;
+  $('examMeta').textContent = `Grade ${c.grade} · Criterion ${c.criterion} ${c.criterionName} · ${attempt.questions.length} questions`;
+  show('testScreen');
+  renderStrip();
+  renderQuestion();
+  clearInterval(timerId);
+  tick();
+  timerId = setInterval(tick, 1000);
+}
+function tick() {
+  if (!attempt || attempt.phase !== 'test') return clearInterval(timerId);
+  const t = $('timer');
+  if (attempt.endsAt) {
+    const left = attempt.endsAt - Date.now();
+    $('timerText').textContent = fmtDuration(left);
+    t.classList.toggle('warn', left <= 300000 && left > 60000);
+    t.classList.toggle('danger', left <= 60000);
+    t.title = 'Time remaining';
+    if (left <= 0) finishTest('time');
+  } else {
+    $('timerText').textContent = fmtDuration(Date.now() - attempt.startedAt);
+    t.title = 'Time elapsed';
+  }
+}
+function renderStrip() {
+  $('qStrip').innerHTML = attempt.questions.map((_, i) => `<button type="button" data-i="${i}" class="${i === attempt.index ? 'current ' : ''}${isAnswered(i) ? 'answered' : ''}" aria-label="Question ${i + 1}">${i + 1}</button>`).join('');
+  const answered = attempt.questions.filter((_, i) => isAnswered(i)).length;
+  $('progressBar').style.width = `${answered / attempt.questions.length * 100}%`;
+}
+$('qStrip').onclick = e => { const b = e.target.closest('button'); if (b) goTo(+b.dataset.i); };
+function goTo(i) {
+  if (i < 0 || i >= attempt.questions.length) return;
+  attempt.index = i; save();
+  renderStrip(); renderQuestion();
+  $('qStrip').children[i]?.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+let savedRange = null;
+function renderQuestion() {
+  const i = attempt.index, q = attempt.questions[i], a = attempt.answers[i];
+  const last = i === attempt.questions.length - 1;
+  const isChoice = CHOICE_TYPES.includes(q.type);
+  const multi = q.type === 'MCQ Multiple';
+  let body = '';
+  if (isChoice) {
+    body = `<div class="options" role="${multi ? 'group' : 'radiogroup'}">${q.options.map((o, j) =>
+      `<button type="button" class="opt${a.choices.includes(j) ? ' selected' : ''}" data-j="${j}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${a.choices.includes(j)}"><span class="key">${LETTERS[j]}</span><span class="otext">${esc(o)}</span></button>`).join('')}</div>`;
+  } else {
+    body = `<div class="editor">
+      <div class="toolbar">
+        <button type="button" class="tool" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+        <button type="button" class="tool" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+        <button type="button" class="tool" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+        <span class="tool-sep"></span>
+        <button type="button" class="tool" data-cmd="superscript" title="Superscript">x²</button>
+        <button type="button" class="tool" data-cmd="subscript" title="Subscript">x₂</button>
+        <span class="tool-sep"></span>
+        <button type="button" class="tool" data-cmd="insertUnorderedList" title="Bullet list">•≡</button>
+        <button type="button" class="tool" data-cmd="insertOrderedList" title="Numbered list">1.≡</button>
+        <span class="tool-sep"></span>
+        <button type="button" class="tool wide" data-eq title="Insert equation"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 4H6l6 8-6 8h12"/></svg>Equation</button>
+      </div>
+      <div id="answerBox" class="answerbox" contenteditable="true" spellcheck="true" data-placeholder="${q.type === 'Fill in the blanks' ? 'Write the missing words in order, e.g. 1) … 2) …' : 'Write your answer here. Show your working.'}"></div>
+      <div class="editor-foot"><span id="wordCount">0 words</span><span>Answers save automatically</span></div>
+    </div>`;
+  }
+  $('examMain').innerHTML = `
+    <div class="q-meta"><span class="q-num">Question ${i + 1} of ${attempt.questions.length}</span><span class="pill primary">${esc(TYPE_LABEL[q.type] || q.type)}</span><span class="pill">${q.marks} mark${q.marks === 1 ? '' : 's'}</span></div>
+    <div class="card q-card">
+      <div class="q-text">${esc(q.text)}</div>
+      ${multi ? '<div class="q-hint">Select all that apply.</div>' : ''}
+      ${body}
+    </div>
+    <div class="q-nav">
+      <button type="button" class="btn" id="prevQ"${i === 0 ? ' disabled' : ''}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Previous</button>
+      <span class="saved"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Saved</span>
+      <button type="button" class="btn ${last ? 'primary' : 'soft'}" id="nextQ">${last ? 'Finish' : 'Next'}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>`;
+  renderMath($('examMain').querySelector('.q-card'));
+  $('prevQ').onclick = () => goTo(i - 1);
+  $('nextQ').onclick = () => last ? askSubmit() : goTo(i + 1);
+  if (isChoice) {
+    $('examMain').querySelector('.options').onclick = e => {
+      const b = e.target.closest('.opt');
+      if (!b) return;
+      const j = +b.dataset.j;
+      if (multi) a.choices = a.choices.includes(j) ? a.choices.filter(x => x !== j) : [...a.choices, j].sort();
+      else a.choices = [j];
+      save(); renderStrip();
+      $('examMain').querySelectorAll('.opt').forEach(el => {
+        const on = a.choices.includes(+el.dataset.j);
+        el.classList.toggle('selected', on);
+        el.setAttribute('aria-checked', on);
+      });
+    };
+  } else {
+    const box = $('answerBox');
+    box.innerHTML = a.html;
+    savedRange = null;
+    const update = () => {
+      a.html = box.innerHTML; save(); renderStrip();
+      const words = answerText(a.html).split(/\s+/).filter(Boolean).length;
+      $('wordCount').textContent = `${words} word${words === 1 ? '' : 's'}`;
+    };
+    const keepRange = () => { const s = getSelection(); if (s.rangeCount && box.contains(s.getRangeAt(0).commonAncestorContainer)) savedRange = s.getRangeAt(0).cloneRange(); };
+    box.addEventListener('input', () => { update(); keepRange(); });
+    box.addEventListener('keyup', keepRange);
+    box.addEventListener('mouseup', keepRange);
+    box.addEventListener('blur', keepRange);
+    box.addEventListener('click', e => { const m = e.target.closest('.answer-math'); if (m) openEquation(m); });
+    update();
+    const toolbar = $('examMain').querySelector('.toolbar');
+    toolbar.addEventListener('mousedown', e => e.preventDefault());
+    toolbar.onclick = e => {
+      const b = e.target.closest('.tool');
+      if (!b) return;
+      if (b.hasAttribute('data-eq')) return openEquation();
+      box.focus();
+      document.execCommand(b.dataset.cmd, false, null);
+      update();
+    };
+  }
+}
+function askSubmit() {
+  const n = attempt.questions.length;
+  const answered = attempt.questions.filter((_, i) => isAnswered(i)).length;
+  $('submitText').textContent = answered === n
+    ? `You have answered all ${n} questions. Once you submit, you can't change your answers.`
+    : `You have answered ${answered} of ${n} questions. ${n - answered} unanswered question${n - answered === 1 ? '' : 's'} will score 0.`;
+  openModal('submitModal');
+}
+$('submitBtn').onclick = askSubmit;
+$('confirmSubmit').onclick = () => { closeModal('submitModal'); finishTest('manual'); };
+
+/* ---------- Equation editor ---------- */
+// Each entry is a label, or [label, template]. In templates #@ takes what is left of the cursor, #0 the selection, #? an empty box.
+const SYMBOLS = {
+  Common: [['\\square^{2}', '#@^{2}'], ['\\square^{n}', '#@^{#?}'], ['\\square_{n}', '#@_{#?}'], ['\\frac{\\square}{\\square}', '\\frac{#0}{#?}'], ['\\sqrt{\\square}', '\\sqrt{#0}'], ['\\sqrt[3]{\\square}', '\\sqrt[3]{#0}'], ['\\sqrt[n]{\\square}', '\\sqrt[#?]{#0}'], ['(\\square)', '\\left(#0\\right)'], ['|\\square|', '\\left|#0\\right|'], '\\pm', '\\times', '\\div', '\\cdot', '\\neq', '\\approx', '\\le', '\\ge', '\\infty', '\\%', '\\pi'],
+  Greek: ['\\alpha', '\\beta', '\\gamma', '\\delta', '\\Delta', '\\theta', '\\lambda', '\\mu', '\\pi', '\\rho', '\\sigma', '\\Sigma', '\\tau', '\\phi', '\\omega', '\\Omega'],
+  Algebra: ['x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}', ['\\log_{\\square}\\square', '\\log_{#?}#0'], ['\\ln\\square', '\\ln #0'], ['e^{\\square}', 'e^{#0}'], 'f(x)', 'f^{-1}(x)', ['\\sum_{\\square}^{\\square}', '\\sum_{#?}^{#?}'], '\\Rightarrow', '\\Leftrightarrow', '\\therefore'],
+  Geometry: ['\\angle', '\\triangle', ['\\square^{\\circ}', '#@^{\\circ}'], '\\parallel', '\\perp', '\\cong', '\\sim', ['\\overline{\\square}', '\\overline{#0}'], ['\\vec{\\square}', '\\vec{#0}'], ['\\sin\\square', '\\sin #0'], ['\\cos\\square', '\\cos #0'], ['\\tan\\square', '\\tan #0']],
+  Calculus: ['\\frac{dy}{dx}', "f'(x)", ['\\int\\square\\,dx', '\\int #0\\,dx'], ['\\int_{\\square}^{\\square}', '\\int_{#?}^{#?}#?\\,dx'], ['\\lim_{\\square\\to\\square}', '\\lim_{#?\\to #?}'], '\\to'],
+  Sets: ['\\in', '\\notin', '\\subset', '\\subseteq', '\\cup', '\\cap', '\\emptyset', '\\mathbb{R}', '\\mathbb{Z}', '\\mathbb{N}', '\\forall', '\\exists'],
+  Science: ['\\rightarrow', '\\rightleftharpoons', 'H_{2}O', 'CO_{2}', '\\text{m s}^{-1}', '\\text{m s}^{-2}', ['\\times10^{\\square}', '\\times10^{#?}'], '\\Delta H', '\\text{mol dm}^{-3}', ['^{\\circ}\\text{C}', '^{\\circ}\\text{C}']],
+};
+let symbolTab = 'Common';
+let editingMath = null;
+let mathLivePromise = null;
+function loadMathLive() {
+  mathLivePromise ||= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mathlive@0.111.4/mathlive.min.js';
+    s.onload = () => {
+      MathfieldElement.soundsDirectory = null;
+      // Keep the Insert button above the on-screen maths keyboard on phones and tablets.
+      mathVirtualKeyboard.addEventListener('geometrychange', () => {
+        const h = mathVirtualKeyboard.visible ? mathVirtualKeyboard.boundingRect.height : 0;
+        $('mathModal').style.paddingBottom = h ? `${h + 12}px` : '';
+        $('mathModal').querySelector('.modal').style.maxHeight = h ? `calc(100vh - ${h + 32}px)` : '';
+      });
+      resolve();
+    };
+    s.onerror = () => { mathLivePromise = null; reject(new Error('could not load the equation editor')); };
+    document.head.appendChild(s);
+  });
+  return mathLivePromise;
+}
+function renderSymbols() {
+  $('symbolTabs').innerHTML = Object.keys(SYMBOLS).map(k => `<button type="button" class="tab${k === symbolTab ? ' active' : ''}" data-tab="${k}">${k}</button>`).join('');
+  $('symbolGrid').innerHTML = '';
+  for (const entry of SYMBOLS[symbolTab]) {
+    const [label, template] = Array.isArray(entry) ? entry : [entry, entry];
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sym';
+    if (window.katex) katex.render(label, b, { throwOnError: false }); else b.textContent = label;
+    b.onmousedown = e => e.preventDefault();
+    b.onclick = () => $('mathField').insert(template, { selectionMode: 'placeholder', focus: true });
+    $('symbolGrid').appendChild(b);
+  }
+}
+$('symbolTabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { symbolTab = b.dataset.tab; renderSymbols(); } };
+$('mathField').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); insertEquation(); } }, { capture: true });
+async function openEquation(existing = null) {
+  editingMath = existing;
+  $('mathTitle').textContent = existing ? 'Edit equation' : 'Equation editor';
+  $('insertMath').textContent = existing ? 'Update equation' : 'Insert into answer';
+  renderSymbols();
+  openModal('mathModal');
+  const mf = $('mathField');
+  try { await loadMathLive(); } catch (e) { $('mathStatus').textContent = 'The equation editor could not load. Check your internet connection and try again.'; return; }
+  $('mathStatus').classList.add('hidden');
+  mf.classList.remove('hidden');
+  mf.value = existing?.dataset.latex || '';
+  setTimeout(() => mf.focus(), 0);
+}
+function insertEquation() {
+  const box = $('answerBox'), latex = window.MathfieldElement ? $('mathField').getValue('latex-without-placeholders').trim() : '';
+  closeModal('mathModal');
+  if (!box || !latex) return;
+  const span = document.createElement('span');
+  span.className = 'answer-math'; span.contentEditable = 'false'; span.dataset.latex = latex; span.title = 'Click to edit';
+  if (window.katex) katex.render(latex, span, { throwOnError: false }); else span.textContent = latex;
+  if (editingMath && box.contains(editingMath)) {
+    editingMath.replaceWith(span);
+    box.dispatchEvent(new Event('input'));
+    return;
+  }
+  box.focus();
+  const sel = getSelection();
+  let range = savedRange && box.contains(savedRange.commonAncestorContainer) ? savedRange : null;
+  if (!range) { range = document.createRange(); range.selectNodeContents(box); range.collapse(false); }
+  range.deleteContents();
+  const space = document.createTextNode('\u00a0');
+  range.insertNode(space); range.insertNode(span);
+  range.setStartAfter(space); range.collapse(true);
+  sel.removeAllRanges(); sel.addRange(range);
+  savedRange = range.cloneRange();
+  box.dispatchEvent(new Event('input'));
+}
+$('insertMath').onclick = insertEquation;
+$('mathBtn').onclick = () => {
+  if ($('answerBox')) openEquation();
+  else alert('The equation editor is for written answers. This question has answer options.');
+};
+
+/* ---------- Finish and review ---------- */
+function sameSet(a, b) { return a.length === b.length && a.every(x => b.includes(x)); }
+function finishTest(reason) {
+  if (!attempt || attempt.phase !== 'test') return;
+  clearInterval(timerId);
+  attempt.phase = 'review';
+  attempt.reason = reason;
+  attempt.submittedAt = reason === 'time' && attempt.endsAt ? Math.min(Date.now(), attempt.endsAt) : Date.now();
+  attempt.questions.forEach((q, i) => {
+    const a = attempt.answers[i];
+    if (CHOICE_TYPES.includes(q.type)) {
+      const ok = a.choices.length > 0 && sameSet(a.choices, q.correct);
+      attempt.marks[q.id] = { score: ok ? q.marks : 0, result: !a.choices.length ? 'Not answered' : ok ? 'Correct' : 'Incorrect' };
+    } else if (!isAnswered(i)) {
+      attempt.marks[q.id] = { score: 0, result: 'Not answered', feedback: 'No answer was written.' };
+    }
+  });
+  save();
+  openReview();
+  markWritten();
+}
+async function markWritten() {
+  const pending = attempt.questions.map((q, i) => ({ q, i })).filter(({ q }) => !attempt.marks[q.id]);
+  if (!pending.length) { attempt.aiStatus = 'done'; save(); renderReview(); return; }
+  attempt.aiStatus = 'pending'; attempt.aiError = '';
+  renderReview();
+  try {
+    const c = attempt.config;
+    const data = await postJson('/api/review', {
+      config: { subject: c.subject, subjectName: c.subjectName, grade: c.grade, criterion: c.criterion, criterionName: c.criterionName },
+      items: pending.map(({ q, i }) => ({ id: q.id, type: q.type, question: q.text, marks: q.marks, markScheme: q.explanation, studentAnswer: answerText(attempt.answers[i].html) })),
+      documents: c.documents,
+    });
+    for (const r of data.results) attempt.marks[r.id] = r;
+    attempt.aiStatus = 'done';
+  } catch (e) {
+    attempt.aiStatus = 'error';
+    attempt.aiError = splitDetail(e.message)[0];
+  }
+  save();
+  renderReview();
+}
+function openReview() { show('reviewScreen'); renderReview(); }
+function resultClass(m, q) {
+  if (!m) return '';
+  if (m.score >= q.marks) return 'good';
+  return m.score > 0 ? 'part' : 'bad';
+}
+function resultPill(m, q) {
+  if (!m) return '<span class="pill"><span class="mini-spin"></span>Marking</span>';
+  const cls = { good: 'green', part: 'amber', bad: 'red' }[resultClass(m, q)];
+  return `<span class="pill ${cls}">${esc(m.result)}</span>`;
+}
+function renderReview() {
+  const { questions, answers, marks, config: c } = attempt;
+  const max = questions.reduce((s, q) => s + q.marks, 0);
+  const marked = questions.filter(q => marks[q.id]);
+  const score = marked.reduce((s, q) => s + Number(marks[q.id].score || 0), 0);
+  const done = marked.length === questions.length;
+  const pct = max ? Math.round(score / max * 100) : 0;
+  $('ring').style.setProperty('--pct', pct);
+  $('ringScore').textContent = done ? `${pct}%` : '…';
+  $('ringSub').textContent = `${score} / ${max} marks`;
+  $('reviewEyebrow').textContent = attempt.reason === 'time' ? 'Time is up · auto-submitted' : 'Test submitted';
+  $('reviewHeadline').textContent = !done ? 'Marking your answers…' : pct >= 80 ? 'Excellent work' : pct >= 60 ? 'Good effort' : pct >= 40 ? 'Getting there' : 'Keep practising';
+  $('reviewSub').textContent = `${c.subjectName} · ${c.prompt || 'Practice test'} · Grade ${c.grade}`;
+  $('statAnswered').textContent = `${questions.filter((_, i) => isAnswered(i)).length} / ${questions.length}`;
+  $('statTime').textContent = fmtDuration(attempt.submittedAt - attempt.startedAt);
+  $('statCriterion').textContent = `${c.criterion} · ${c.criterionName}`;
+
+  const notice = $('reviewNotice');
+  if (attempt.aiStatus === 'pending') notice.innerHTML = '<div class="notice info"><span><span class="mini-spin"></span>The AI is marking your written answers. Choice questions are already marked.</span></div>';
+  else if (attempt.aiStatus === 'error') notice.innerHTML = `<div class="notice error"><span>Marking failed: ${esc(attempt.aiError)}</span><button class="btn sm" id="retryMark">Try again</button></div>`;
+  else notice.innerHTML = '';
+  $('retryMark') && ($('retryMark').onclick = markWritten);
+
+  $('reviewItems').innerHTML = questions.map((q, i) => {
+    const a = answers[i], m = marks[q.id];
+    let answerBlock;
+    if (CHOICE_TYPES.includes(q.type)) {
+      answerBlock = `<div class="ropts">${q.options.map((o, j) => {
+        const picked = a.choices.includes(j), right = q.correct.includes(j);
+        const cls = right ? 'correct' : picked ? 'wrong' : '';
+        const tag = picked && right ? 'Your answer · correct' : picked ? 'Your answer' : right ? 'Correct answer' : '';
+        return `<div class="ropt ${cls}"><span class="key">${LETTERS[j]}</span><span>${esc(o)}</span>${tag ? `<span class="tag">${tag}</span>` : ''}</div>`;
+      }).join('')}</div>`;
+    } else {
+      const text = answerText(a.html);
+      answerBlock = `<div class="label">Your answer</div><div class="answer-view${text ? '' : ' empty'}">${text ? esc(text) : 'Not answered'}</div>`;
+    }
+    const fb = !m
+      ? (attempt.aiStatus === 'error' ? '' : '<div class="feedback pending"><span class="mini-spin"></span>Marking this answer…</div>')
+      : m.feedback ? `<div class="feedback">${esc(m.feedback)}${m.improvement ? `<div class="improve"><strong>Next step:</strong> ${esc(m.improvement)}</div>` : ''}</div>` : '';
+    const scheme = q.explanation ? `<details class="scheme"><summary><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>${CHOICE_TYPES.includes(q.type) ? 'Explanation' : 'Model answer and mark scheme'}</summary><div class="body">${esc(q.explanation)}</div></details>` : '';
+    return `<article class="card ritem ${resultClass(m, q)}">
+      <div class="ritem-head"><div class="left"><span class="q-num">Question ${i + 1}</span><span class="pill">${esc(TYPE_LABEL[q.type] || q.type)}</span>${resultPill(m, q)}</div><span class="score-tag">${m ? m.score : '–'} / ${q.marks}</span></div>
+      <div class="q-text">${esc(q.text)}</div>
+      ${answerBlock}${fb}${scheme}
+    </article>`;
+  }).join('');
+  renderMath($('reviewItems'));
+}
+function newTest() {
+  attempt = null;
+  localStorage.removeItem(STORAGE_KEY);
+  $('resumeBanner').classList.add('hidden');
+  show('homeScreen');
+}
+$('newTestBtn').onclick = newTest;
+$('newTestTop').onclick = newTest;
+$('retakeBtn').onclick = () => startAttempt(attempt.config, attempt.questions);
+
+/* ---------- Resume after refresh ---------- */
+function checkSaved() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch {}
+  if (!saved?.questions?.length) return;
+  const c = saved.config;
+  const inTest = saved.phase === 'test';
+  $('resumeTitle').textContent = inTest ? 'You have an unfinished test' : 'Your last test results are saved';
+  $('resumeMeta').textContent = `${c.subjectName} · ${c.prompt || 'Practice test'} · ${saved.questions.length} questions`;
+  $('resumeOpen').textContent = inTest ? 'Resume test' : 'View results';
+  $('resumeBanner').classList.remove('hidden');
+  $('resumeOpen').onclick = () => {
+    attempt = saved;
+    $('resumeBanner').classList.add('hidden');
+    if (attempt.phase === 'test') {
+      if (attempt.endsAt && attempt.endsAt <= Date.now()) finishTest('time');
+      else openTest();
+    } else {
+      openReview();
+      if (attempt.aiStatus === 'pending') markWritten();
+    }
+  };
+  $('resumeDiscard').onclick = () => { localStorage.removeItem(STORAGE_KEY); $('resumeBanner').classList.add('hidden'); };
+}
+checkSaved();
+
+/* ---------- Scientific calculator ---------- */
+const calc = { tokens: [], cursor: 0, ans: 0, angle: 'DEG', result: '0', error: false, fresh: false };
+// d = what the screen shows, e = what math.js evaluates
+const T = {
+  sin: { d: 'sin(', e: 'dsin(' }, cos: { d: 'cos(', e: 'dcos(' }, tan: { d: 'tan(', e: 'dtan(' },
+  asin: { d: 'sin⁻¹(', e: 'dasin(' }, acos: { d: 'cos⁻¹(', e: 'dacos(' }, atan: { d: 'tan⁻¹(', e: 'datan(' },
+  log: { d: 'log(', e: 'log10(' }, ln: { d: 'ln(', e: 'log(' }, pow10: { d: '10^(', e: '10^(' }, exp: { d: 'e^(', e: 'e^(' },
+  sq: { d: '²', e: '^2' }, cube: { d: '³', e: '^3' }, pow: { d: '^(', e: '^(' }, inv: { d: '⁻¹', e: '^(-1)' },
+  sqrt: { d: '√(', e: 'sqrt(' }, cbrt: { d: '∛(', e: 'cbrt(' }, root: { d: 'ˣ√', e: '§R§' },
+  fact: { d: '!', e: '!' }, nCr: { d: 'C', e: '§C§' }, nPr: { d: 'P', e: '§P§' }, abs: { d: 'Abs(', e: 'abs(' },
+  pi: { d: 'π', e: '(pi)' }, e: { d: 'e', e: '(e)' }, ans: { d: 'Ans', e: '(Ans)' }, EXP: { d: '×10^', e: '*10^' },
+  pct: { d: '%', e: '/100' }, lp: { d: '(', e: '(' }, rp: { d: ')', e: ')' }, neg: { d: '−', e: '-' },
+  add: { d: '+', e: '+' }, sub: { d: '−', e: '-' }, mul: { d: '×', e: '*' }, div: { d: '÷', e: '/' }, dot: { d: '.', e: '.' },
+};
+for (let n = 0; n <= 9; n++) T[n] = { d: String(n), e: String(n) };
+const BINARY = ['add', 'sub', 'mul', 'div', 'sq', 'cube', 'pow', 'inv', 'fact', 'nCr', 'nPr', 'root', 'pct'];
+const KEYS = [
+  [null, 'fn toggle', 'angle'], ['sin', 'fn', 'sin'], ['cos', 'fn', 'cos'], ['tan', 'fn', 'tan'], ['π', 'fn', 'pi'],
+  ['(−)', 'fn', 'neg'], ['sin⁻¹', 'fn', 'asin'], ['cos⁻¹', 'fn', 'acos'], ['tan⁻¹', 'fn', 'atan'], ['e', 'fn', 'e'],
+  ['x²', 'fn', 'sq'], ['x³', 'fn', 'cube'], ['xʸ', 'fn', 'pow'], ['x⁻¹', 'fn', 'inv'], ['n!', 'fn', 'fact'],
+  ['√', 'fn', 'sqrt'], ['∛', 'fn', 'cbrt'], ['ˣ√', 'fn', 'root'], ['log', 'fn', 'log'], ['ln', 'fn', 'ln'],
+  ['10ˣ', 'fn', 'pow10'], ['eˣ', 'fn', 'exp'], ['nCr', 'fn', 'nCr'], ['nPr', 'fn', 'nPr'], ['|x|', 'fn', 'abs'],
+  ['(', 'fn', 'lp'], [')', 'fn', 'rp'], ['%', 'fn', 'pct'], ['◀', 'fn', 'left'], ['▶', 'fn', 'right'],
+  ['7', 'num', 7], ['8', 'num', 8], ['9', 'num', 9], ['DEL', 'del', 'DEL'], ['AC', 'del', 'AC'],
+  ['4', 'num', 4], ['5', 'num', 5], ['6', 'num', 6], ['×', 'op', 'mul'], ['÷', 'op', 'div'],
+  ['1', 'num', 1], ['2', 'num', 2], ['3', 'num', 3], ['+', 'op', 'add'], ['−', 'op', 'sub'],
+  ['0', 'num', 0], ['.', 'num', 'dot'], ['×10ˣ', 'fn', 'EXP'], ['Ans', 'fn', 'ans'], ['=', 'eq', '='],
+];
+function renderCalcKeys() {
+  $('calcKeys').innerHTML = KEYS.map(([label, cls, key]) =>
+    `<button type="button" class="${cls}" data-k="${key}">${label ?? calc.angle}</button>`).join('');
+}
+function calcExprString() {
+  let e = calc.tokens.map(t => t.e).join('');
+  const open = (e.match(/\(/g) || []).length - (e.match(/\)/g) || []).length;
+  if (open > 0) e += ')'.repeat(open);
+  const operand = '(\\d+(?:\\.\\d+)?|\\([^()§]*\\))';
+  e = e.replace(new RegExp(`${operand}§C§${operand}`, 'g'), 'combinations($1,$2)')
+       .replace(new RegExp(`${operand}§P§${operand}`, 'g'), 'permutations($1,$2)')
+       .replace(new RegExp(`${operand}§R§${operand}`, 'g'), 'nthRootOf($1,$2)');
+  if (e.includes('§')) throw new Error('syntax');
+  return e;
+}
+function formatNumber(n) {
+  if (Math.abs(n) < 1e-12) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e10 || abs < 1e-6) {
+    const [m, x] = n.toExponential(8).split('e');
+    return `${String(+m)}×10^${+x}`;
+  }
+  return String(+n.toPrecision(10));
+}
+function calcScope() {
+  const toRad = x => calc.angle === 'DEG' ? x * Math.PI / 180 : x;
+  const fromRad = x => calc.angle === 'DEG' ? x * 180 / Math.PI : x;
+  const exactTrig = (fn, x) => { const v = fn(toRad(x)); return Math.abs(v) < 1e-12 ? 0 : v; };
+  return {
+    Ans: calc.ans, pi: Math.PI, e: Math.E,
+    dsin: x => exactTrig(Math.sin, x), dcos: x => exactTrig(Math.cos, x),
+    dtan: x => { if (calc.angle === 'DEG' && Math.abs(((x % 180) + 180) % 180 - 90) < 1e-9) throw new Error('math'); return exactTrig(Math.tan, x); },
+    dasin: x => { if (Math.abs(x) > 1) throw new Error('math'); return fromRad(Math.asin(x)); },
+    dacos: x => { if (Math.abs(x) > 1) throw new Error('math'); return fromRad(Math.acos(x)); },
+    datan: x => fromRad(Math.atan(x)),
+    nthRootOf: (n, x) => { if (x < 0 && n % 2 === 1) return -Math.pow(-x, 1 / n); return Math.pow(x, 1 / n); },
+  };
+}
+function calcEvaluate() {
+  if (!calc.tokens.length) return;
+  try {
+    if (!window.math) throw new Error('engine');
+    let v = math.evaluate(calcExprString(), calcScope());
+    if (v && typeof v === 'object' && 're' in v) {
+      if (Math.abs(v.im) > 1e-12) throw new Error('math');
+      v = v.re;
+    }
+    if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error('math');
+    calc.ans = Math.abs(v) < 1e-12 ? 0 : v;
+    calc.result = formatNumber(calc.ans);
+    calc.error = false;
+  } catch (err) {
+    calc.error = true;
+    calc.result = err.message === 'engine' ? 'Calculator still loading'
+      : err instanceof SyntaxError || err.message === 'syntax' ? 'Syntax ERROR' : 'Math ERROR';
+  }
+  calc.fresh = true;
+  renderCalc();
+}
+function calcInsert(key) {
+  if (calc.fresh) {
+    // After "=", an operator continues from Ans; anything else starts a new calculation.
+    calc.tokens = !calc.error && BINARY.includes(key) ? [T.ans] : [];
+    calc.cursor = calc.tokens.length;
+    calc.fresh = false;
+  }
+  calc.tokens.splice(calc.cursor, 0, T[key]);
+  calc.cursor++;
+}
+function calcPress(k) {
+  if (k === '=') return calcEvaluate();
+  if (k === 'AC') { Object.assign(calc, { tokens: [], cursor: 0, result: '0', error: false, fresh: false }); return renderCalc(); }
+  if (k === 'DEL') {
+    if (calc.fresh) { calc.fresh = false; calc.cursor = calc.tokens.length; }
+    if (calc.cursor > 0) { calc.tokens.splice(calc.cursor - 1, 1); calc.cursor--; }
+    return renderCalc();
+  }
+  if (k === 'angle') { calc.angle = calc.angle === 'DEG' ? 'RAD' : 'DEG'; renderCalcKeys(); return renderCalc(); }
+  if (k === 'left' || k === 'right') {
+    if (calc.fresh) { calc.fresh = false; calc.cursor = calc.tokens.length; }
+    calc.cursor = Math.max(0, Math.min(calc.tokens.length, calc.cursor + (k === 'left' ? -1 : 1)));
+    return renderCalc();
+  }
+  if (T[k]) { calcInsert(k); renderCalc(); }
+}
+function renderCalc() {
+  const parts = calc.tokens.map(t => esc(t.d));
+  if (!calc.fresh) parts.splice(calc.cursor, 0, '<span class="caret"></span>');
+  $('calcExpr').innerHTML = parts.join('') + (calc.fresh ? ' =' : '');
+  const live = !calc.fresh && calc.tokens.length;
+  $('calcResult').textContent = live ? '' : calc.result;
+  $('calcResult').classList.toggle('err', calc.error && calc.fresh);
+  $('calcAngleLabel').textContent = calc.angle;
+  $('calcAnsLabel').textContent = calc.ans ? `Ans = ${formatNumber(calc.ans)}` : '';
+}
+renderCalcKeys();
+renderCalc();
+$('calcKeys').addEventListener('mousedown', e => e.preventDefault());
+$('calcKeys').onclick = e => { const b = e.target.closest('button[data-k]'); if (b) { calcPress(b.dataset.k); $('calc').focus({ preventScroll: true }); } };
+const KEYBOARD = { '+': 'add', '-': 'sub', '*': 'mul', 'x': 'mul', '/': 'div', '^': 'pow', '(': 'lp', ')': 'rp', '.': 'dot', '!': 'fact', '%': 'pct', 'Enter': '=', '=': '=', 'Backspace': 'DEL', 'Delete': 'AC', 'ArrowLeft': 'left', 'ArrowRight': 'right', 'p': 'pi', 's': 'sin', 'c': 'cos', 't': 'tan', 'l': 'log', 'n': 'ln', 'r': 'sqrt', 'e': 'e', 'a': 'ans' };
+$('calc').addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape') { closeCalc(); return; }
+  const k = /^[0-9]$/.test(e.key) ? e.key : KEYBOARD[e.key];
+  if (k === undefined) return;
+  e.preventDefault();
+  calcPress(k);
+});
+function openCalc() { $('calc').classList.remove('hidden'); $('calc').focus({ preventScroll: true }); }
+function closeCalc() { $('calc').classList.add('hidden'); }
+$('calcBtn').onclick = () => $('calc').classList.contains('hidden') ? openCalc() : closeCalc();
+$('calcClose').onclick = closeCalc;
+(() => {
+  const panel = $('calc'), head = $('calcHead');
+  let start = null;
+  head.addEventListener('pointerdown', e => {
+    if (e.target.closest('button') || innerWidth <= 640) return;
+    const r = panel.getBoundingClientRect();
+    start = { x: e.clientX - r.left, y: e.clientY - r.top };
+    head.setPointerCapture(e.pointerId);
+  });
+  head.addEventListener('pointermove', e => {
+    if (!start) return;
+    const x = Math.min(innerWidth - panel.offsetWidth - 4, Math.max(4, e.clientX - start.x));
+    const y = Math.min(innerHeight - 60, Math.max(4, e.clientY - start.y));
+    Object.assign(panel.style, { left: `${x}px`, top: `${y}px`, right: 'auto' });
+  });
+  head.addEventListener('pointerup', () => { start = null; });
+})();
+</script>
+</body>
+</html>
